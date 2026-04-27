@@ -30,7 +30,7 @@ public class ExamService {
 
         String type = (examType == null || examType.isBlank()) ? "GENERIC" : examType.trim().toUpperCase();
 
-        List<Question> list = questions.findByExamType(profile, type);
+        List<Question> list = questions.findByExamType( type);
 
         // Backward compatibility: old questions may have NULL examType. If GENERIC returns empty, use old profile query.
         if (list.isEmpty() && "GENERIC".equals(type)) {

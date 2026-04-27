@@ -7,5 +7,5 @@ import java.util.List;
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByProfile(ProfileType profile);
     List<Question> findByProfileAndExamType(ProfileType profile, String examType);
-    List<Question> findByExamType(ProfileType profile, String examType);
+    List<Question> findByExamType( String examType);
 }
