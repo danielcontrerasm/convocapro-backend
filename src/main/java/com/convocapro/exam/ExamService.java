@@ -21,6 +21,23 @@ public class ExamService {
         return list.stream().limit(Math.max(1, count)).map(QuestionResponse::from).toList();
     }
 
+    public List<ExamDto> findAvailableExams() {
+        return questions.findExamTypeSummaries().stream()
+                .map(summary -> {
+                    String examType = summary.getExamType();
+                    String title = titleFromExamType(examType);
+                    return new ExamDto(
+                            title,
+                            examType,
+                            badgeFromExamType(examType),
+                            descriptionFromExamType(examType),
+                            Math.toIntExact(summary.getQuestions()),
+                            true
+                    );
+                })
+                .toList();
+    }
+
     public List<QuestionResponse> full(Long userId, String examType) {
         AppUser user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         ProfileType profile = user.getProfile();
@@ -92,5 +109,57 @@ public class ExamService {
 
         double percentage = req.answers().isEmpty() ? 0.0 : Math.round(score * 10000.0 / req.answers().size()) / 100.0;
         return new ExamResultResponse(score, req.answers().size(), percentage, categories, review);
+    }
+
+    private String titleFromExamType(String examType) {
+        List<String> parts = Arrays.stream(examType.split("_"))
+                .filter(part -> !part.isBlank())
+                .map(this::capitalize)
+                .toList();
+
+        if (parts.isEmpty()) {
+            return "Examen";
+        }
+
+        String badge = badgeFromExamType(examType);
+        List<String> titleParts = new ArrayList<>(parts);
+
+        if (!badge.isBlank()) {
+            titleParts.removeIf(part -> part.equalsIgnoreCase(badge));
+            titleParts.add(0, badge);
+        }
+
+        if (titleParts.size() > 1 && isNumeric(titleParts.get(titleParts.size() - 1))) {
+            String last = titleParts.remove(titleParts.size() - 1);
+            return String.join(" ", titleParts) + " - " + last;
+        }
+
+        return String.join(" ", titleParts);
+    }
+
+    private String badgeFromExamType(String examType) {
+        List<String> badges = List.of("PROFESIONAL", "TECNICO", "ASISTENCIAL", "TERRITORIAL", "GENERIC");
+        Set<String> parts = new HashSet<>(Arrays.asList(examType.split("_")));
+        return badges.stream()
+                .filter(parts::contains)
+                .findFirst()
+                .map(this::capitalize)
+                .orElse("");
+    }
+
+    private String descriptionFromExamType(String examType) {
+        if (examType.contains("TERRITORIAL")) {
+            return "Banco técnico ampliado.";
+        }
+        return "Banco de preguntas disponible.";
+    }
+
+    private String capitalize(String value) {
+        String lower = value.toLowerCase(Locale.ROOT);
+        return lower.substring(0, 1).toUpperCase(Locale.ROOT) + lower.substring(1);
+    }
+
+    private boolean isNumeric(String value) {
+        return value.chars().allMatch(Character::isDigit);
     }
 }

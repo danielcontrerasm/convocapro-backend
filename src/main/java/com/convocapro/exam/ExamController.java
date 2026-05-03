@@ -25,6 +25,11 @@ public class ExamController {
     ) {
         return service.full(userId, examType);
     }
+    
+    @GetMapping
+    public List<ExamDto> getAvailableExams() {
+        return service.findAvailableExams();
+    }
 
     @PostMapping("/submit")
     public ExamResultResponse submit(@RequestBody SubmitExamRequest req) {
