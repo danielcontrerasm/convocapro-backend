@@ -2,6 +2,7 @@ package com.convocapro.user;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -56,6 +57,14 @@ public class UserController {
         m.put("retriesUsed", u.getRetriesUsed());
         m.put("totalAccesses", u.getTotalAccesses());
         m.put("active", u.getActive());
+        m.put("hasActiveSession", hasActiveSession(u));
+        m.put("activeSessionExpiresAt", u.getActiveSessionExpiresAt());
         return m;
+    }
+
+    private boolean hasActiveSession(AppUser u) {
+        return u.getActiveSessionId() != null
+                && u.getActiveSessionExpiresAt() != null
+                && u.getActiveSessionExpiresAt().isAfter(LocalDateTime.now());
     }
 }

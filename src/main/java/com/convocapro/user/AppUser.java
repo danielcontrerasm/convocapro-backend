@@ -33,6 +33,8 @@ public class AppUser {
     private Integer retriesUsed = 0;
     private Integer totalAccesses = 0;
     private Boolean active = true;
+    private String activeSessionId;
+    private LocalDateTime activeSessionExpiresAt;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Long getId() { return id; }
@@ -47,6 +49,8 @@ public class AppUser {
     public Integer getRetriesUsed() { return retriesUsed; }
     public Integer getTotalAccesses() { return totalAccesses; }
     public Boolean getActive() { return active; }
+    public String getActiveSessionId() { return activeSessionId; }
+    public LocalDateTime getActiveSessionExpiresAt() { return activeSessionExpiresAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -60,4 +64,6 @@ public class AppUser {
     public void setRetriesUsed(Integer retriesUsed) { this.retriesUsed = retriesUsed; }
     public void setTotalAccesses(Integer totalAccesses) { this.totalAccesses = totalAccesses; }
     public void setActive(Boolean active) { this.active = active; }
+    public void setActiveSessionId(String activeSessionId) { this.activeSessionId = activeSessionId; }
+    public void setActiveSessionExpiresAt(LocalDateTime activeSessionExpiresAt) { this.activeSessionExpiresAt = activeSessionExpiresAt; }
 }

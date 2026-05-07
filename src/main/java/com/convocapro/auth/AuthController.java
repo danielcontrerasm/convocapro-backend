@@ -2,6 +2,8 @@ package com.convocapro.auth;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -19,5 +21,11 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest req) {
         return service.login(req);
+    }
+
+    @PostMapping("/logout")
+    public Map<String, String> logout(@RequestHeader(name = "Authorization", required = false) String authorizationHeader) {
+        service.logout(authorizationHeader);
+        return Map.of("message", "Logged out");
     }
 }

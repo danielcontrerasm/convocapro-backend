@@ -12,4 +12,10 @@ public class GlobalExceptionHandler {
     public Map<String, String> badRequest(IllegalArgumentException ex) {
         return Map.of("error", ex.getMessage());
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> conflict(IllegalStateException ex) {
+        return Map.of("error", ex.getMessage());
+    }
 }

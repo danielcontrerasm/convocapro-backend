@@ -55,6 +55,7 @@ tecnico / 1234
 ```http
 POST /api/auth/login
 POST /api/auth/register
+POST /api/auth/logout
 ```
 
 Login body:
@@ -63,6 +64,11 @@ Login body:
   "username": "admin",
   "password": "1234"
 }
+```
+
+Logout requires the current bearer token:
+```http
+Authorization: Bearer <token>
 ```
 
 ### Usuarios/admin
