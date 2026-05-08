@@ -9,10 +9,19 @@ import java.util.*;
 public class ExamService {
     private final QuestionRepository questions;
     private final AppUserRepository users;
+    private final QuestionClassifier classifier;
+    private final FeedbackService feedbackService;
 
-    public ExamService(QuestionRepository questions, AppUserRepository users) {
+    public ExamService(
+            QuestionRepository questions,
+            AppUserRepository users,
+            QuestionClassifier classifier,
+            FeedbackService feedbackService
+    ) {
         this.questions = questions;
         this.users = users;
+        this.classifier = classifier;
+        this.feedbackService = feedbackService;
     }
 
     public List<QuestionResponse> demo(int count) {
@@ -81,7 +90,8 @@ public class ExamService {
 
         for (AnswerRequest answer : req.answers()) {
             Question q = questions.findById(answer.questionId()).orElseThrow();
-            String category = q.getCategory().name();
+            ClassificationResult classification = classifier.classify(q.getQuestionText());
+            String category = classification.category();
 
             totalByCat.put(category, totalByCat.getOrDefault(category, 0) + 1);
             boolean ok = q.getCorrectAnswer().equalsIgnoreCase(answer.selectedOption());
@@ -95,20 +105,33 @@ public class ExamService {
                     q.getId(),
                     answer.selectedOption(),
                     q.getCorrectAnswer(),
-                    ok
+                    ok,
+                    classification.axis(),
+                    classification.category(),
+                    classification.subcategory()
             ));
         }
 
         Map<String, ExamResultResponse.CategoryScore> categories = new LinkedHashMap<>();
-        for (String category : totalByCat.keySet()) {
+        Map<String, AxisResult> feedbackResults = new LinkedHashMap<>();
+        for (String category : feedbackService.getAllCategories()) {
+            int correct = correctByCat.getOrDefault(category, 0);
+            int total = totalByCat.getOrDefault(category, 0);
+            AxisResult result = new AxisResult(category, correct, total);
+            feedbackResults.put(category, result);
             categories.put(category, new ExamResultResponse.CategoryScore(
-                    correctByCat.getOrDefault(category, 0),
-                    totalByCat.get(category)
+                    correct,
+                    total,
+                    result.getPercentage(),
+                    total == 0
+                            ? "No hubo preguntas clasificadas en esta categoría durante este simulacro."
+                            : feedbackService.getSpecificFeedback(category, result.getPercentage())
             ));
         }
 
         double percentage = req.answers().isEmpty() ? 0.0 : Math.round(score * 10000.0 / req.answers().size()) / 100.0;
-        return new ExamResultResponse(score, req.answers().size(), percentage, categories, review);
+        String feedback = feedbackService.generateGeneralFeedback(feedbackResults);
+        return new ExamResultResponse(score, req.answers().size(), percentage, categories, feedback, review);
     }
 
     private String titleFromExamType(String examType) {

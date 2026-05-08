@@ -8,8 +8,17 @@ public record ExamResultResponse(
         int total,
         double percentage,
         Map<String, CategoryScore> categories,
+        String feedback,
         List<QuestionReview> review
 ) {
-    public record CategoryScore(int correct, int total) {}
-    public record QuestionReview(Long questionId, String selectedOption, String correctAnswer, boolean correct) {}
+    public record CategoryScore(int correct, int total, double percentage, String feedback) {}
+    public record QuestionReview(
+            Long questionId,
+            String selectedOption,
+            String correctAnswer,
+            boolean correct,
+            String axis,
+            String category,
+            String subcategory
+    ) {}
 }

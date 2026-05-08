@@ -52,7 +52,7 @@ public class AuthService {
         }
 
         if (hasActiveSession(user)) {
-            throw new IllegalStateException("User already has an active session");
+            throw new IllegalStateException("El usuario ya tiene una sesion activa");
         }
 
         user.setTotalAccesses((user.getTotalAccesses() == null ? 0 : user.getTotalAccesses()) + 1);
